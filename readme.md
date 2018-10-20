@@ -10,13 +10,13 @@ Note: ignore the "murderhouse" stuff for now, that's getting folded in in a late
 
 ## To play:
 
-As described in my talk, you can do lots of things to interact with an array-of-float generator.  You can use the sliders to explore on your own, or use one of the auto-walk buttons ">" ">>" to animate it.  You can also play music (may need to be locally hosted)
+As described in my talk, you can do lots of things to interact with an array-of-float generator.  You can use the sliders to explore on your own, or use one of the auto-walk buttons ">" ">>" to animate it.  You can also play music (may need to be locally hosted).  Hand-control (leapmotion), Face control (clmtracker) and Brain-wave control (Muse?) are stubbed into the UI but not yet operational.
 
 ## To make a new generator:
 
 I've provided two examples (flowers and landscape).  
 
-You'll either modify one of these, or create your own to explore some procedural generation.
+You'll either modify one of these (try making better flowers! or add leaves!), or create your own to explore some procedural generation.
 
 Steps to create a new generator:
 * add a new file "type-mygeneratorname.js" (etc)
