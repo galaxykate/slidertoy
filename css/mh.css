@@ -1,0 +1,19 @@
+.mh-fact {
+	display: inline-block;
+	
+	border-radius: 10px;
+	margin: 2px;
+	padding: 2px 4px;
+	background-color: hsla(0, 50%, 80%, 1);
+	color: hsla(0, 50%, 30%, 1);
+	box-shadow: 1px 1px 2px rgba(0, 0, 0, .4);
+}
+
+.mh-factparams {
+	display: inline-block;
+	border-radius: 10px;
+	margin: 2px;
+	padding: 2px 4px;
+	background-color: hsla(0, 50%, 99%, 1);
+	box-shadow: inset 1px 1px 2px rgba(0, 0, 0, .4);
+}
