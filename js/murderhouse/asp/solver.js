@@ -5,7 +5,30 @@
 console.log(Gringo);
 console.log(Clasp);
 
+function parseFact(fact) {
+    let i = fact.indexOf("(");
+
+    let params = fact.substring(i + 1, fact.length - 1).split(",")
+    let key = fact.substring(0, i)
+    let not = false
+    if (key.charAt(0) === "-") {
+        not = true
+        key = key.substring(1)
+        console.log("NOT", key)
+    }
+
+
+    return {
+        raw: fact,
+        params: params,
+        key: fact.substring(0, i),
+        not: not
+    }
+}
+
 function groundAndSolve(rules, facts, callback) {
+
+
 
     let code = "%rules\n" + rules + "\n\n%facts\n" + facts.map(f => f + ".").join("\n");
 
@@ -21,20 +44,13 @@ function groundAndSolve(rules, facts, callback) {
             console.log("done");
             // button.property("disabled", false);
             if (result.Witnesses) {
+                // Ignore all previous facts
                 let newFactSets = result.Witnesses.map((soln) => {
                     return soln.Value.filter(f => facts.indexOf(f) < 0)
                 })
 
                 let processedSets = newFactSets.map(set => {
-                    return set.map(fact => {
-                        let i = fact.indexOf("(");
-                        let params = fact.substring(i + 1, fact.length - 1).split(",")
-                        return {
-                            raw: fact,
-                            params: params,
-                            r: fact.substring(0, i)
-                        }
-                    })
+                    return set.map(fact => parseFact(fact))
                 })
                 callback(processedSets);
 

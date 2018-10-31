@@ -1,82 +1,85 @@
+let timeCount = 10;
+let worldSettings = {
+	count: {
+		object: 5,
+		room: 5,
+		character: 5
+	},
 
-// c: character
-// r: room
-// t: time
-let relationshipTypes = {
-	isSiblingOf: {
-		params: "cc"
+
+	rules:  `
+		
+		% some timesteps?
+		t(1..10).
+
+		% some number of people are dead at the end
+		1 {dead(X, 10):character(X)} 3.
+
+		% some number of people are in love
+		1 {inLoveWith(X, Y):character(X), character(Y), X!=Y} 3.
+		loveTriangle(X,Y,Z) :- inLoveWith(X, Y),inLoveWith(Y, Z).
+		hates(X,Y) :- loveTriangle(X,_,Y).
+
+		% test color rule
+		{ color(X,1..5) } = 1 :- character(X).
+
+		%
+		siblingOf(X, Y) :- siblingOf(Y, X).
+		childOf(X, Y) :- parentOf(Y, X).
+		parentOf(X, Y) :- childOf(Y, X).
+		`,
+
+	// What someone/something is, always
+	// Can also have "pretending" overlays?
+	properties: {
+		// Character properties
+		character: {
+			gender: ["m", "f", "n"],
+			morality: ["evil", "neutral", "good"],
+			wealth: [0, 1, 2],
+			isNobility: ["true", "false"]
+		},
+
+		room: {
+			carpeted: ["true", "false"],
+			indoor: ["true", "false"],
+		},
+
+		obj: {
+			size: ["small", "medium", "large"],
+		}
 	},
-	isParentOf: {
-		params: "cc"
+
+	// What someone/something can be at some time 
+	// True/false
+	conditions: {
+		character: ["sick", "dead", "asleep"],
+		room: ["lit"],
+		co: ["hidden"],
+		all: ["onFire"]
 	},
-	isChildOf: {
-		params: "cc"
+
+	relationships: {
+		character: {
+			character: ["inLoveWith", "parentOf", "siblingOf", "businessRivalOf"],
+		},
+		room: {
+			room: ["canSee"],
+		},
+		object: {
+			character: ["ownedBy*"]
+		}
 	},
-	isInLoveWith: {
-		params: "cc"
-	},
-	isJealousOf: {
-		params: "cc"
-	},
-	hates: {
-		params: "cc"
-	},
-	loveTriangle: {
-		params: "ccc"
-	},
-	isIn: {
-		params: "crt"
-	},
-	canSee: {
-		params: "rr"
-	},
-	connectedTo: {
-		params: "rr"
-	},
-	isDead: {
-		params: "ct"
+
+	tempRelationships: {
+		character: {
+			room: ["inRoom*"]
+		},
+
+		object: {
+			co: ["heldBy*"],
+			character: ["desiredBy"]
+		},
+		
 	}
 }
-
-let characterTraits = {
-	name: {
-		type: "string",
-	},
-	gender: {
-		type: "select",
-		options: ["m", "f", "n"],
-		asp: true,
-	},
-	wealth: {
-		type: "select",
-		options: ["poor", "rich"],
-		asp: true,
-	},
-	age: {
-		type: "int",
-		min: 0,
-		max: 2,
-		asp: true,
-	}
-}
-
-function getIDColor(r) {
-	if (characterTraits[r])
-		return characterTraits[r].idColor
-	if (relationshipTypes[r])
-		return relationshipTypes[r].idColor
-	console.warn("No relationship or trait:", r)
-	return new KColor(1, 0, .4)
-}
-
-let charTraitNumber = 0;
-$.each(characterTraits, (key, obj) => {
-	obj.idNumber = charTraitNumber++;
-	obj.idColor = new KColor((obj.idNumber*1.38)%1, .5, .5);
-})
-let rTraitNumber = 0;
-$.each(relationshipTypes, (key, obj) => {
-	obj.idNumber = rTraitNumber++;
-	obj.idColor = new KColor((obj.idNumber*1.38 + .3)%1, .5, .5);
-})
-

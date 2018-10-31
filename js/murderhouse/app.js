@@ -1,45 +1,57 @@
+let solverView, worldView;
+
 $(function() {
 
-	let world = new World();
-	let worldView = new WorldView($("#section-editor .section-main"), world);
-	let solverView = new SolverView($("#section-view .section-main"), world);
+	// Create a world
+	let world = new World(worldSettings);
 
-	console.log("Ready")
+	// And a view of the world
+	worldView = new WorldView($("#section-editor .section-main"), world);
+	solverView = new SolverView($("#section-view .section-main"), world);
 
-	let code = `% instance
-motive(harry).
-motive(sally).
-guilty(harry).
+	let count = 0;
+	setInterval(() => {
+		if (count < 3)
+			world.createRandomFacts(.04)
+		count++
+	}, 500)
 
-% encoding
-innocent(Suspect) :- motive(Suspect), not guilty(Suspect).
-`
+	// 	console.log("Ready")
 
-	let rules = `
-	% some timesteps?
-	t(1..10).
-	
-	% some number of people are dead at the end
-	1 {dead(X, 10):person(X)} 3.
-	
-	% some number of people are in love
-	1 {inLoveWith(X, Y):person(X), person(Y), X!=Y} 3.
-	loveTriangle(X,Y,Z) :- inLoveWith(X, Y),inLoveWith(Y, Z).
-	hates(X,Y) :- loveTriangle(X,_,Y).
+	// 	let code = `% instance
+	// motive(harry).
+	// motive(sally).
+	// guilty(harry).
 
-	% test color rule
-	{ color(X,1..5) } = 1 :- person(X).
+	// % encoding
+	// innocent(Suspect) :- motive(Suspect), not guilty(Suspect).
+	// `
 
-	%
-	isSiblingOf(X, Y) :- isSiblingOf(Y, X).
-	isChildOf(X, Y) :- isParentOf(Y, X).
-	isParentOf(X, Y) :- isChildOf(Y, X).
-	`
+	// 	let rules = `
+	// 	% some timesteps?
+	// 	t(1..10).
+
+	// 	% some number of people are dead at the end
+	// 	1 {dead(X, 10):person(X)} 3.
+
+	// 	% some number of people are in love
+	// 	1 {inLoveWith(X, Y):person(X), person(Y), X!=Y} 3.
+	// 	loveTriangle(X,Y,Z) :- inLoveWith(X, Y),inLoveWith(Y, Z).
+	// 	hates(X,Y) :- loveTriangle(X,_,Y).
+
+	// 	% test color rule
+	// 	{ color(X,1..5) } = 1 :- person(X).
+
+	// 	%
+	// 	isSiblingOf(X, Y) :- isSiblingOf(Y, X).
+	// 	isChildOf(X, Y) :- isParentOf(Y, X).
+	// 	isParentOf(X, Y) :- isChildOf(Y, X).
+	// 	`
 
 
 
-	groundAndSolve(rules, world.getFacts(), (newFacts) => {
-		
-		solverView.setFacts(newFacts)
-	})
+	// 	groundAndSolve(rules, world.getFacts(), (newFacts) => {
+
+	// 		solverView.setFacts(newFacts)
+	// 	})
 })

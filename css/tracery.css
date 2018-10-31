@@ -1,0 +1,119 @@
+html {
+	background-color: hsla(20, 20%, 90%, 1);
+}
+
+.section { 
+	background-color: hsla(20, 30%, 90%, 1);
+}
+
+.tracery-symbol-header {
+	flex: none;
+	min-width: 100px;
+}
+
+.tracery-controlbutton {
+	margin: 1px;
+	border-radius: 20px;
+	font-size: 18px;
+	width: 24px;
+	height: 24px;
+	padding: 0px 2px;
+	background-color: hsla(0, 0%, 20%, .3);
+	text-align: center;
+	border: none;
+	user-select: none;
+	box-shadow: 0px 3px 2px hsla(0, 0%, 20%, 1);
+}
+
+.tracery-controlbutton:active {
+	box-shadow: inset 0px 3px 2px hsla(0, 0%, 20%, 1);
+	background-color: hsla(0, 0%, 20%, .6);
+}
+
+
+.tracery-controlbutton.active {
+	box-shadow: inset 0px 1px 1px hsla(0, 0%, 20%, 1);
+	background-color: hsla(0, 0%, 70%, .6);
+}
+
+
+.tracery-symbol-row.selected {
+	
+	background-color: hsla(210, 70%, 90%, .2);
+}
+.tracery-symbol-row {
+	overflow: hidden;
+	margin: 2px;
+	background-color: hsla(210, 70%, 90%, .1);
+	flex: none;
+	display: flex;
+	flex-direction: row;
+}
+
+
+.tracery-symbol-rules {
+	font-size: 80%;
+}
+.tracery-symbol-row.selected  .tracery-symbol-rules {
+	font-size: 100%;
+}
+
+
+.tracery-rulechip {
+	min-width: 20px;
+	margin: 1px;
+	display: inline-block;
+	
+	padding: 1px 2px;
+	border-radius: 3px;
+	box-shadow: 1px 2px 3px rgba(0, 0, 0, .3);
+	background-color:hsla(20, 10%, 95%, .2);
+}
+
+.tracery-rulechip.selected {
+	background-color:hsla(220, 40%, 95%, .4);
+}
+
+.tracery-symbol-label {
+	display: inline-block;
+	height: 18px;
+	margin: 1px;
+	padding: 2px 4px;
+	border-radius: 10px;
+	box-shadow: 1px 2px 3px rgba(0, 0, 0, .3), inset -0px -1px 0px 1px rgba(0, 0, 0, .3), inset -0px 1px 0px 1px hsla(0, 0%, 100%, .3);
+	background-color:hsla(20, 10%, 95%, 1);
+}
+
+.tracery-output {
+	margin: 4px;
+	padding: 2px 4px;
+	box-shadow: 1px 2px 3px rgba(0, 0, 0, .3);
+	background-color:hsla(20, 10%, 95%, 1);
+}
+.tracery-output-svg {
+	padding: 4px 4px;
+	display: inline-block;
+}
+
+.tracery-diagram-content {
+	
+	background-color:hsla(20, 10%, 5%, .2);
+}
+.tracery-diagram-header {
+	font-size: 10px;
+
+	padding: 1px 2px;
+	box-shadow: 0px 1px 1px rgba(0, 0, 0, .3);
+	background-color:hsla(220, 40%, 95%, .2);
+}
+.tracery-diagram-node {
+	display: inline-block;
+	margin: 1px;
+	padding: 2px 4px;
+	box-shadow: 1px 2px 3px rgba(0, 0, 0, .3);
+	background-color:hsla(20, 10%, 95%, .2);
+}
+
+.tracery-diagram-text {
+	font-family: monospace;
+}

@@ -19,7 +19,11 @@
    		flex-direction: column-reverse;
    }
 }
-
+.icon {
+	width: 18px;
+	height: 18px;
+	opacity: .5;
+}
 .main-section {
 	flex: 1;
 	display: flex;
@@ -27,16 +31,39 @@
 	overflow: scroll;
 }
 #section-view {
-	background-color: hsla(50, 50%, 90%, 1);
+	
 	
 }
 #section-editor {
-	background-color: hsla(150, 50%, 90%, 1);
+	
 }
 
 .table {
 	width: 100%;
 }
+
+.row {
+	margin: 2px;
+flex: none;
+	display: flex;
+	flex-direction: column;
+}
+
+.row-header {
+	min-height: 10px;
+	background-color: hsla(150, 0%, 90%, .1);
+}
+
+.row-content {
+	flex: 1;
+	display: flex;
+	flex-direction: row;
+}
+.row-label {
+	width: 20px;
+	background-color: hsla(150, 50%, 90%, .6);
+}
+
 
 .section {
 	flex: 1;
@@ -44,14 +71,14 @@
 	flex-direction: column;
 	margin: 2px;
 	padding: 2px;
-	background-color: hsla(50, 50%, 99%, 1);
 }
 
 .section-header {
 	min-height: 10px;
 	display: flex;
 	flex-direction: row;
-	background-color: hsla(150, 50%, 90%, 1);
+	justify-content: space-between;
+	background-color: hsla(150, 0%, 90%, .1);
 }
 
 .section-headertitle {
@@ -66,11 +93,11 @@
 	flex: 1;
 	display: flex;
 	flex-direction: column;
-	background-color: hsla(250, 50%, 50%, .1);
+	
 }
 
 .section-footer {
-	background-color: hsla(350, 50%, 90%, 1);
+	background-color: hsla(350, 50%, 90%, .1);
 }
 
 
@@ -124,5 +151,23 @@
 	width: 1px;
 	font-size: 70%;
 	position: absolute;
+}
+.labeldata {
+	margin: 1px;
+	border-radius: 10px;
+	background-color: hsla(350, 0%, 90%, .2);
+	display: inline-block;
+}
+.labeldata-label {
+	font-style: italic;
+		font-size: 70%;
+		padding: 1px 3px;
+	display: inline-block;
+}
+.labeldata-value {
+display: inline-block;
+margin: 2px;
+	border-radius: 10px;
+	background-color: hsla(350, 0%, 90%, .2);
 }
 

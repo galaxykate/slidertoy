@@ -1,158 +1,207 @@
-// A World has a set of facts, and a set of rules
-// It can run clingo to create new sets of rules
-// And then update stuff accordingly
+function World(template) {
 
-function World() {
-	this.characters = [];
-	for (var i = 0; i < 5; i++) {
-		this.addCharacter();
-	}
-	this.randomize();
-}
+	this.type = new WorldType(template);
 
-World.prototype.addCharacter = function() {
-	let c = new Character()
-	this.characters.push(c);
-}
+	// Create a world of this type
+	this.entDirectory = {}
+	this.events = []
+	this.propOptions = {}
 
-World.prototype.applyFacts = function(solutionSet) {
-	$.each(solutionSet, (index, fact) => {
-		console.log(fact);
-		
+	// Get all the property options from this template
+	// We will need these for choosing new options
+	$.each(template.properties, (type, set) => {
+		$.each(set, (key, options) => {
+			if (this.propOptions[key] !== undefined)
+				console.warn("duplicate property '" + key + "' in prop set '" + type + "'")
+			this.propOptions[key] = options;
+		})
 	})
-}
 
-World.prototype.randomize = function() {
-	this.relationships = []
 
-	// Create some families
-	for (var i = 0; i < this.characters.length / 2; i++) {
-		let i0 = Math.floor(Math.random() * this.characters.length);
-		let i1 = (i0 + 1 + Math.floor(Math.random() * (this.characters.length - 1))) % this.characters.length;
-		let c0 = this.characters[i0]
-		let c1 = this.characters[i1]
+	// Create some objects, rooms, and characters
+	entTypes.forEach(type => {
+		let count = template.count[type]
+		entCount[type] = 0;
+		for (var i = 0; i < count; i++) {
 
-		if (c0.age < c1.age) {
-			this.relationships.push({
-				r: "isParentOf",
-				a: c1.id,
-				b: c0.id,
-			})
-		} else if (c0.age > c1.age) {
-			this.relationships.push({
-				r: "isParentOf",
-				a: c0.id,
-				b: c1.id,
-			})
-		} else {
-			this.relationships.push({
-				r: "isSiblingOf",
-				a: c0.id,
-				b: c1.id,
-			})
+
+			let ent = new Entity(this, type);
+
+			// Add this to the directory
+			this.entDirectory[ent.id] = ent;
 		}
-	}
-}
-
-
-// Given this world, create the facts that we know about it
-// Characters
-// Relationships (in love with, hates, childOf, parentOf)
-World.prototype.getFacts = function() {
-	let facts = []
-	this.characters.forEach(c => facts = facts.concat(c.getFacts()))
-
-	this.relationships.forEach(r => {
-		facts = facts.concat(fact(r.r, r.a, r.b))
 	})
 
-	return facts;
+	this.createRandomFacts(.05);
 }
 
-//==========================================================
-//==========================================================
-//==========================================================
-let characterCount = 0;
-let names = {
-	m: shuffle(["Herbert", "Gregory", "Eustace", "Neville", "Alfred", "Archibald", "Baxter", "Edwin", "Martin", "Oliver", "Ernest", "Victor", "Hugo", "Thaddeus", "Sebastian"]),
-	f: shuffle(["Alice", "Jane", "Emma", "Milicent", "Agatha", "Bertha", "Winnie", "Violet", "Mary", "Martha", "Lucy", "Lily", "Lilian", "Josephine", "Henrietta", "Flora"]),
-	n: shuffle(["CJ", "Bee", "Chay", "Zay", "Venice", "Mur", "Adder", "Via", "Zinn", "JC", "Jess", "Whymsy", "Squirrel", "Mimsy", "Cat", "Stranger", "Star", "Eke", "Morr", "River", "Pebble", "Tree", "Darkness", "Void"]),
+// Get all target ids for this option
+World.prototype.getTargetOptionsFor = function(ent, key) {
+	let ft = this.getFactType(key)
+
+
+	let match = this.getAllEntities().filter(e1 => {
+		if (e1 != ent || ft.allowSelfTargeting) {
+
+			return ft.targetType.includes(e1.type)
+		}
+		return false;
+	}).map(m => m.id)
+
+	return match;
 }
 
+World.prototype.getAllEntities = function() {
+	return Object.keys(this.entDirectory).map(key => this.entDirectory[key])
+}
 
-function Character() {
-	this.idNumber = characterCount++;
-	this.id = "c" + this.idNumber;
-	this.randomize();
+World.prototype.constructFacts = function() {
+	// Remove everything we know from the world
+	let f = []
+	$.each(this.entDirectory, (id, ent) => f = f.concat(ent.constructFacts()))
+	return f;
+}
 
-	setTimeout(() => {
-		this.randomize();
-		this.value
+World.prototype.clearFacts = function() {
+	// Remove everything we know from the world
+	$.each(this.entDirectory, (id, ent) => ent.clearFacts())
+
+}
+
+World.prototype.createRandomFacts = function(pct) {
+	let facts = []
+
+	$.each(this.entDirectory, (id, ent) => {
+		// What kind of fact can we create for this?
+
+		// For each class of facts (relationships, props, etc)
+		// Create facts for that class (for this entity type)
+
+		factClasses.forEach((fc) => {
+			let factTypes = this.type.getMatchingFactTypes(fc, ent.type)
+			factTypes.forEach(ft => {
+				switch (ft.factClass) {
+					case "relationship":
+
+						let targetType = getRandom(ft.targetType)
+						let targetOptions = this.getAllEntities().filter(ent => ent.type === targetType)
+						if (!ft.allowSelfTargeting)
+							targetOptions = targetOptions.filter(ent0 => ent !== ent0)
+						let target = getRandom(targetOptions);
+
+						// create relationship
+						if (Math.random() > 1 - pct || ft.isRequired) {
+
+							facts.push({
+								key: ft.id,
+								params: [ent.id, target.id],
+								not: Math.random() > .5
+							})
+						}
+						break;
+					case "tempRelationship":
+						for (var i = 0; i < timeCount; i++) {
+							let targetType = getRandom(ft.targetType)
+							let targetOptions = this.getAllEntities().filter(ent => ent.type === targetType)
+							if (!ft.allowSelfTargeting)
+								targetOptions = targetOptions.filter(ent0 => ent !== ent0)
+							let target = getRandom(targetOptions);
+
+							// create relationship
+							if (Math.random() > 1 - pct || ft.isRequired) {
+
+								facts.push({
+									key: ft.id,
+									params: [ent.id, target.id, i],
+									not: Math.random() > .5
+								})
+							}
+						}
+						break;
+					case "property":
+						if (Math.random() > 1 - pct || ft.isRequired) {
+
+							facts.push({
+								key: ft.id,
+								params: [ent.id, getRandom(ft.options)]
+							})
+						}
+						break;
+					case "condition":
+						// for (var i = 0; i < timeCount; i++) {
+						// 	if (Math.random() > 1 - pct || ft.isRequired) {
+						// 		facts.push({
+						// 			key: ft.id,
+						// 			params: [ent.id, Math.random() > .5, i]
+						// 		})
+						// 	}
+						// }
+						break;
+					default:
+						console.warn("Unknown fact type: " + ft.factClass)
+				}
+			})
+		});
+	})
+
+
+	this.gainFacts(facts);
+}
+World.prototype.refreshFacts = function() {
+	let facts = this.constructFacts();
+	solverView.setKnownFacts(facts);
+
+}
+World.prototype.solve = function() {
+	// Compile and solve
+	let facts = this.constructFacts();
+	
+	solverView.setKnownFacts(facts);
+	solverView.setRules(this.type.rules);
+	solverView.setStatus("solving...")
+
+	groundAndSolve(this.type.rules, facts, (factsets) => {
+		solverView.setStatus("solved: " + factsets.length + " soln sets")
+		solverView.showFactSets(factsets);
+
 	});
 }
 
-// Facts about the character might be
-// 	wealth level
-//	family members
+World.prototype.getEntStyle = function(id, pastelMod) {
+	let hue = (id.hashCode() * .1213) % 1
+	let pastel = Math.sin(id.hashCode() * 2.3913) * .1
+	if (pastelMod)
+		pastel += pastelMod
+	let color = new KColor(hue, 1, 1)
 
-Character.prototype.setValue = function(key, val) {
-	let v0 = this[key];
-
-	if (v0 !== val) {
-		this[key] = val;
-		this.do("changeValue", key, val, v0);
+	return {
+		backgroundColor: color.toCSS(pastel + .4),
+		color: color.toCSS(pastel - .8)
 	}
+
 }
 
-Character.prototype.randomize = function() {
-	$.each(characterTraits, (key, obj) => {
-		switch (obj.type) {
-			case "int":
-				let v = Math.floor(Math.random() * (1 + obj.max - obj.min)) + obj.min;
-				this.setValue(key, v);
-				break;
-			case "select":
-				this.setValue(key, getRandom(obj.options));
-				break;
-			case "string":
-				this.setValue(key, "xxxxxxx");
-				break;
-		}
+World.prototype.getEnt = function(id) {
+	// Get the entity for this id
+	if (this.entDirectory[id])
+		return this.entDirectory[id]
+	// console.warn("No entity found for id:'" + id + "'")
+}
+
+World.prototype.getFactType = function(key) {
+	// if (this.type.factTypeDirectory[key] === undefined)
+	// 	console.warn("No fact type for:" + key)
+	return this.type.factTypeDirectory[key]
+}
+
+World.prototype.gainFacts = function(facts) {
+	// Distribute these facts
+	facts.forEach(f => {
+		let ownerID = f.params[0]
+		this.getEnt(ownerID).gainFact(f)
 	})
-
 }
 
-Character.prototype.getFacts = function() {
-	let facts = [fact("person", this.id)]
-	$.each(characterTraits, (key, obj) => {
-		if (obj.asp) {
-			facts.push(fact(key, this.id, this[key]))
-		}
-
-	})
-
-	console.log(facts)
-
-	// if (this.wealth !== undefined)
-	// 	facts.push(fact("wealth", this.id, this.wealth))
-	// if (this.job !== undefined)
-	// 	facts.push(fact("job", this.id, this.job))
-	// if (this.age !== undefined)
-	// 	facts.push(fact("age", this.id, this.age))
-	return facts
-
-}
-
-function fact(r, ...params) {
-	return r + "(" + params.join(",") + ")"
-}
-
-
-// Add event handling to world and character
 World.prototype.on = addEventHandler;
 World.prototype.do = doEventHandlers;
 World.prototype.removeEventHandlers = removeEventHandlers;
-
-Character.prototype.on = addEventHandler;
-Character.prototype.do = doEventHandlers;
-Character.prototype.removeEventHandlers = removeEventHandlers;
