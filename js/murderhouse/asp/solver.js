@@ -41,7 +41,7 @@ function groundAndSolve(rules, facts, callback) {
     Gringo.groundAsync([code, grounderArgs], function(program) {
         console.log("solving...");
         Clasp.solveAsync([program, solverArgs], function(result) {
-            console.log("done");
+            console.log("done " + result.Witnesses.length);
             // button.property("disabled", false);
             if (result.Witnesses) {
                 // Ignore all previous facts
